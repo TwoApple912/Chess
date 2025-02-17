@@ -1,4 +1,4 @@
-using System.Collections;
+wusing System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -679,7 +679,7 @@ public class ChessManager : MonoBehaviour
             }
         }*/
         
-        if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended))
         {
             /*if (isDragging) // Drag logic (same as click logic but slightly different)
             {
