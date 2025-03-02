@@ -185,7 +185,9 @@ public class ChessVisualization : MonoBehaviour
                 Instantiate(promotionParticles, position, Quaternion.identity);
                 break;
             case ParticleEffectType.Capture:
-                Instantiate(captureParticles, position, Quaternion.identity);
+                GameObject particle = Instantiate(placePieceParticles, position, Quaternion.identity);
+                particle.GetComponent<ParticleSystem>().startColor = captureHighlightColor;
+                particle.GetComponent<ParticleSystem>().emission.SetBurst(0, new ParticleSystem.Burst(0, 1));
                 break;
         }
     }

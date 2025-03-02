@@ -42,6 +42,8 @@ public class IngameMenuAnimatorController : MonoBehaviour, IPointerExitHandler
     private void Update()
     {
         UpdateAnimatorWhenGamePause();
+
+        if (isMenuOpen && Input.touchCount > 0) CloseMenu();
     }
 
     void OnPointerEnter()
@@ -54,7 +56,7 @@ public class IngameMenuAnimatorController : MonoBehaviour, IPointerExitHandler
         if (isMenuOpen) CloseMenu();
     }
 
-    void OpenMenu()
+    public void OpenMenu()
     {
         isMenuOpen = true;
         StartCoroutine(AnimateMenuElement());

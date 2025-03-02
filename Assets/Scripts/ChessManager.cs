@@ -464,8 +464,14 @@ public class ChessManager : MonoBehaviour
         List<ChessPiece> teamPieces = new List<ChessPiece>();
         for (int x = 0; x < boardSize; x++)
             for (int y = 0; y < boardSize; y++)
-                if (board[x,y] != null && board[x,y].chessPieceTeam == king.chessPieceTeam)
+                if (board[x, y] != null && board[x, y].chessPieceTeam == king.chessPieceTeam)
+                {
                     teamPieces.Add(board[x, y]);
+                    if (board[x, y].isAttached)
+                    {
+                        teamPieces.Add(board[x, y].attachedPiece);
+                    }
+                }
 
         foreach (var piece in teamPieces)
         {
@@ -473,11 +479,13 @@ public class ChessManager : MonoBehaviour
             foreach (Vector2Int move in moves)
             {
                 ChessPiece[,] simulatedBoard = (ChessPiece[,])board.Clone();
+                Vector2Int kingPosition = new Vector2Int(king.currentX, king.currentY);
                 
                 simulatedBoard[piece.currentX, piece.currentY] = null;
                 simulatedBoard[move.x, move.y] = piece;
+
+                if (piece.isAttached) simulatedBoard[piece.currentX, piece.currentY] = piece.attachedPiece;
                 
-                Vector2Int kingPosition = new Vector2Int(king.currentX, king.currentY);
                 if (piece is King)
                 {
                     kingPosition = new Vector2Int(move.x, move.y);
@@ -516,57 +524,65 @@ public class ChessManager : MonoBehaviour
     bool IsStalemate(ChessPiece[,] board, ChessPieceTeam team)
     {
         ChessPieceTeam opponentTeam = (team == ChessPieceTeam.White) ? ChessPieceTeam.Black : ChessPieceTeam.White;
-        
-        foreach (ChessPiece piece in board)
+        Vector2Int kingPosition = opponentTeam == ChessPieceTeam.White
+            ? whiteKing.GetCurrentCoordinate()
+            : blackKing.GetCurrentCoordinate();
+
+        List<ChessPiece> opponentPieces = new List<ChessPiece>();
+        for (int x = 0; x < boardSize; x++)
+        for (int y = 0; y < boardSize; y++)
         {
-            if (piece && piece.chessPieceTeam == opponentTeam)
+            if (board[x, y] != null && board[x, y].chessPieceTeam == opponentTeam)
             {
-                List<Vector2Int> moves = piece.GetAvailableMoves(board, boardSize);
-                Vector2Int kingPosition = opponentTeam == ChessPieceTeam.White
-                    ? whiteKing.GetCurrentCoordinate()
-                    : blackKing.GetCurrentCoordinate();
-                
-                foreach (var move in moves)
+                opponentPieces.Add(board[x, y]);
+                if (board[x, y].isAttached) opponentPieces.Add(board[x, y].attachedPiece);
+            }
+        }
+
+        foreach (ChessPiece piece in opponentPieces)
+        {
+            List<Vector2Int> moves = piece.GetAvailableMoves(board, boardSize);
+
+            foreach (var move in moves)
+            {
+                ChessPiece[,] simulatedBoard = (ChessPiece[,])chessPieces.Clone();
+
+                simulatedBoard[piece.currentX, piece.currentY] = piece.isAttached ? piece.attachedPiece : null;
+                simulatedBoard[move.x, move.y] = piece;
+
+                if (piece is King)
                 {
-                    ChessPiece[,] simulatedBoard = (ChessPiece[,])chessPieces.Clone();
-            
+                    kingPosition = new Vector2Int(move.x, move.y);
+                }
+
+                if (piece is Pawn && move == enPassantMove) // En Passant
+                {
+                    simulatedBoard[move.x, move.y - ((int)piece.chessPieceTeam == 0 ? 1 : -1)] = null;
+                }
+
+                if (piece is King && Mathf.Abs(move.x - piece.currentX) == 2) // Castling
+                {
+                    int rookX = (move.x == 2) ? 0 : boardSize - 1;
+                    int newKingX = piece.currentX + (move.x == 2 ? -2 : 2);
+                    int newRookX = piece.currentX + (move.x == 2 ? -1 : 1);
+
                     simulatedBoard[piece.currentX, piece.currentY] = null;
+                    simulatedBoard[newKingX, piece.currentY] = piece;
+                    simulatedBoard[rookX, piece.currentY] = null;
+                    simulatedBoard[newRookX, piece.currentY] = chessPieces[rookX, piece.currentY];
+                }
+
+                if (piece is Pawn && Mathf.Abs(move.x - piece.currentX) == 1 &&
+                    Mathf.Abs(move.y - piece.currentY) == 1) // Pawn Capture
+                {
                     simulatedBoard[move.x, move.y] = piece;
+                    simulatedBoard[move.x, move.y - ((int)piece.chessPieceTeam == 0 ? 1 : -1)] = null;
+                }
 
-                    if (piece is King)
-                    {
-                        kingPosition = new Vector2Int(move.x, move.y);
-                    }
-
-                    if (piece is Pawn && move == enPassantMove) // En Passant
-                    {
-                        simulatedBoard[move.x, move.y - ((int)piece.chessPieceTeam == 0 ? 1 : -1)] = null;
-                    }
-
-                    if (piece is King && Mathf.Abs(move.x - piece.currentX) == 2) // Castling
-                    {
-                        int rookX = (move.x == 2) ? 0 : boardSize - 1;
-                        int newKingX = piece.currentX + (move.x == 2 ? -2 : 2);
-                        int newRookX = piece.currentX + (move.x == 2 ? -1 : 1);
-
-                        simulatedBoard[piece.currentX, piece.currentY] = null;
-                        simulatedBoard[newKingX, piece.currentY] = piece;
-                        simulatedBoard[rookX, piece.currentY] = null;
-                        simulatedBoard[newRookX, piece.currentY] = chessPieces[rookX, piece.currentY];
-                    }
-
-                    if (piece is Pawn && Mathf.Abs(move.x - piece.currentX) == 1 &&
-                        Mathf.Abs(move.y - piece.currentY) == 1) // Pawn Capture
-                    {
-                        simulatedBoard[move.x, move.y] = piece;
-                        simulatedBoard[move.x, move.y - ((int)piece.chessPieceTeam == 0 ? 1 : -1)] = null;
-                    }
-
-                    if (!IsKingInDanger(simulatedBoard, kingPosition, opponentTeam))
-                    {
-                        //Debug.Log("Not Stalemate " + piece + " " + move);
-                        return false;
-                    }
+                if (!IsKingInDanger(simulatedBoard, kingPosition, opponentTeam))
+                {
+                    //Debug.Log("Not Stalemate " + piece + " " + move);
+                    return false;
                 }
             }
         }
