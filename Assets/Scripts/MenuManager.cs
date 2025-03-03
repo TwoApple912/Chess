@@ -38,7 +38,6 @@ public class MenuManager : MonoBehaviour
     public void UndoMove()
     {
         ChessManager.Instance.UndoMove();
-        ChessManager.Instance.UndoMove();
     }
 
     public void ReturnToMainMenu()

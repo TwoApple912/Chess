@@ -372,10 +372,10 @@ public class ChessManager : MonoBehaviour
         }
     }
 
-    IEnumerator SwitchPOVDelay()
+    IEnumerator SwitchPOVDelay(bool enableDelay = true)
     {
         foreach (var coroutine in activeMoveCoroutine) yield return coroutine;
-        yield return new WaitForSeconds(switchPOVDelay);
+        yield return new WaitForSeconds(enableDelay ? switchPOVDelay : 0);
         
         CameraManager.Instance.SwitchCamera();
 
@@ -1067,6 +1067,10 @@ public class ChessManager : MonoBehaviour
             lastMove.capturedPiece.PlacePieceInCurrentCoordinate();
             lastMove.capturedPiece.hasMoved = lastMove.capturedPieceHasMovedState;
         }
+        
+        // Update turn & change camera
+        currentTurn = currentTurn == ChessPieceTeam.White ? ChessPieceTeam.Black : ChessPieceTeam.White;
+        StartCoroutine(SwitchPOVDelay());
     }
 
     void DragPiece()
