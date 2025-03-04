@@ -138,7 +138,7 @@ public class ChessVisualization : MonoBehaviour
 
     IEnumerator HighlightPieceCoroutine(ChessPiece piece, Color color, float targetAlpha, float duration)
     {
-        if (piece == null) yield break;
+        /*if (piece == null) yield break;
 
         piece.GetComponentInChildren<OutlineFx.OutlineFx>()._color = new Color(color.r, color.g, color.b,
             piece.GetComponentInChildren<OutlineFx.OutlineFx>()._color.a);
@@ -164,7 +164,9 @@ public class ChessVisualization : MonoBehaviour
 
         Color finalColor = piece.GetComponentInChildren<OutlineFx.OutlineFx>()._color;
         finalColor.a = targetAlpha;
-        piece.GetComponentInChildren<OutlineFx.OutlineFx>()._color = finalColor;
+        piece.GetComponentInChildren<OutlineFx.OutlineFx>()._color = finalColor;*/
+
+        yield return new WaitForSeconds(0f);
     }
 
     #region Particle Effects
