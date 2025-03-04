@@ -45,9 +45,9 @@ public class MenuManager : MonoBehaviour
         
     }
 
-    public void QuitGame()
+    public static void QuitGame()
     {
-        
+        Application.Quit();
     }
 
     public void OfferDraw()
@@ -62,7 +62,7 @@ public class MenuManager : MonoBehaviour
             ChessManager.Instance.CurrentTurn == ChessPieceTeam.White ? ChessPieceTeam.Black : ChessPieceTeam.White);
     }
 
-    public void OpenRules()
+    public static void OpenRules()
     {
         
     }

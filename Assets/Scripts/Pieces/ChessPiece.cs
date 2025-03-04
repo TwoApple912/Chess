@@ -265,7 +265,7 @@ public class ChessPiece : MonoBehaviour
         }
         transform.position = target;
         
-        ChessVisualization.Instance.SpawnParticleEffect(ChessVisualization.ParticleEffectType.PlacePiece, target);
+        ChessVisualization.Instance?.SpawnParticleEffect(ChessVisualization.ParticleEffectType.PlacePiece, target);
     }
 
     public void AnimatedMovePieceTo(Vector3 target, float durationMultiplier = 1f, float initialDelay = 0)
@@ -275,7 +275,7 @@ public class ChessPiece : MonoBehaviour
         Coroutine coroutine = StartCoroutine(AnimatedMovePieceCoroutine(targetPosition, durationMultiplier, initialDelay));
         StartCoroutine(RotateToCoroutine(targetPosition, initialDelay));
 
-        ChessManager.Instance.activeMoveCoroutine.Add(coroutine);
+        ChessManager.Instance?.activeMoveCoroutine.Add(coroutine);
         
         Debug.Log(this + " AnimatedMovePieceTo");
     }
@@ -311,7 +311,7 @@ public class ChessPiece : MonoBehaviour
 
         transform.position = target;
 
-        ChessVisualization.Instance.SpawnParticleEffect(ChessVisualization.ParticleEffectType.PlacePiece, target);
+        ChessVisualization.Instance?.SpawnParticleEffect(ChessVisualization.ParticleEffectType.PlacePiece, target);
     }
 
     private IEnumerator RotateToCoroutine(Vector3 target, float initialDelay)

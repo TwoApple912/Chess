@@ -43,12 +43,12 @@ public class ChessManager : MonoBehaviour
     [Header("Tile Spawning")] [SerializeField]
     public int boardSize = 8;
 
-    [SerializeField] private float tileSize = 1.5f;
+    [SerializeField] private float tileSize = 1f;
     [SerializeField] private GameObject tilePrefab;
     public GameObject[,] tiles; // Tiles prefabs 2D array
     [Space]
     [SerializeField] private GameObject chessboardObject;
-    [SerializeField] private float tileYOffset = 0.1f;
+    [SerializeField] private float tileYOffset = 0.005f;
 
     [Header("Pieces Spawning")]
     [SerializeField] private float spawnBaseDelay = 0.1f;
@@ -108,7 +108,7 @@ public class ChessManager : MonoBehaviour
         capturedPiecePlacerScript = GetComponent<CapturedPiecePlacer>();
     }
 
-    private void Start()
+    void Start()
     {
         GenerateTiles();
         StartCoroutine(SpawnPiecesInTheDefaultLayout());
