@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -62,5 +61,12 @@ public class King : ChessPiece
         else return false;
         
         return true;
+    }
+    
+    public override bool IsAvailableToAttach(bool initiatingPiece)
+    {
+        if (ChessManager.Instance.CurrentTeamIsChecked) return false;
+        
+        return base.IsAvailableToAttach(initiatingPiece);
     }
 }

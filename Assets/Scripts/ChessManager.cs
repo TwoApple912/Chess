@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +8,14 @@ using Random = UnityEngine.Random;
 public class ChessManager : MonoBehaviour
 {
     public static ChessManager Instance;
+    public event Action OnTurnEnd;
 
     [Header("Game Tracker")]
     public ChessPiece[,] chessPieces;
     [SerializeField] private ChessPieceTeam currentTurn = ChessPieceTeam.White;
         public ChessPieceTeam CurrentTurn => currentTurn;
+    [SerializeField] private bool currentTeamIsChecked;
+        public bool CurrentTeamIsChecked => currentTeamIsChecked;
     [Space]
     private List<Vector2Int> possibleMoves = new List<Vector2Int>();
     public Vector2Int? enPassantMove;
@@ -110,6 +114,11 @@ public class ChessManager : MonoBehaviour
 
     void Start()
     {
+        Debug.Log($"Wild mode: {GameConfigurations.isWildMode}");
+        Debug.Log($"{GameConfigurations.PlayerTimerMinute}|{GameConfigurations.PlayerIncrementSecond}");
+
+        ApplyConfigurations();
+        
         GenerateTiles();
         StartCoroutine(SpawnPiecesInTheDefaultLayout());
     }
@@ -146,8 +155,17 @@ public class ChessManager : MonoBehaviour
     {
         chessPieces[x, y] = piece;
     }
+    
+    #region Start Game Codes
 
-    #region Board Generation / Board Stuff
+    void ApplyConfigurations()
+    {
+        // TODO: Wild mode
+    }
+    
+    #endregion
+
+    #region Board Generation / Initial Game Setup
 
     void GenerateTiles()
     {
@@ -280,9 +298,8 @@ public class ChessManager : MonoBehaviour
 
         StartCoroutine(SpawnPieces(whitePiecesToSpawn));
         yield return StartCoroutine(SpawnPieces(blackPiecesToSpawn));
-        isSpawningPieces = false;
 
-        AssignKingVariable();
+        EndInitialGameSetup();
     }
 
     IEnumerator SpawnPieces(List<(ChessPieceType type, ChessPieceTeam team, int x, int y)> pieceToSpawn)
@@ -332,6 +349,15 @@ public class ChessManager : MonoBehaviour
         }
     }
 
+    void EndInitialGameSetup()
+    {
+        isSpawningPieces = false;
+        
+        AssignKingVariable();
+        
+        GameTimerManager.Instance.StartTimer();
+    }
+
     #endregion
 
     #region Turn System
@@ -366,7 +392,13 @@ public class ChessManager : MonoBehaviour
         // If not, carry onto next turn
         else
         {
+            OnTurnEnd?.Invoke();
+            
             currentTurn = currentTurn == ChessPieceTeam.White ? ChessPieceTeam.Black : ChessPieceTeam.White;
+            currentTeamIsChecked = IsKingInDanger(chessPieces,
+                currentTurn == ChessPieceTeam.White
+                    ? whiteKing.GetCurrentCoordinate()
+                    : blackKing.GetCurrentCoordinate(), currentTurn);
             
             StartCoroutine(SwitchPOVDelay());
         }
@@ -1264,7 +1296,7 @@ public class ChessManager : MonoBehaviour
         moves = safeMove;
     }
  
-    bool IsKingInDanger(ChessPiece[,] board, Vector2Int kingPosition, ChessPieceTeam team)
+    public bool IsKingInDanger(ChessPiece[,] board, Vector2Int kingPosition, ChessPieceTeam team)
     {
         foreach (var piece in board)
         {

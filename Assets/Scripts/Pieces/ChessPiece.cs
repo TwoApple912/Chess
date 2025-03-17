@@ -72,8 +72,8 @@ public class ChessPiece : MonoBehaviour
 
     private void Awake()
     {
-        teamMaterial[0] = Resources.Load<Material>("Materials/WhiteTeam");
-        teamMaterial[1] = Resources.Load<Material>("Materials/BlackTeam");
+        teamMaterial[0] = Resources.Load<Material>("Materials/WhiteTeamPlastic");
+        teamMaterial[1] = Resources.Load<Material>("Materials/BlackTeamPlastic");
 
         model = transform.Find("Model");
         modelAnimator = model.GetComponent<Animator>();
@@ -224,7 +224,7 @@ public class ChessPiece : MonoBehaviour
         return value > attachedPiece.value ? this : attachedPiece;
     }
 
-    public bool IsAvailableToAttach(bool initiatingPiece)
+    public virtual bool IsAvailableToAttach(bool initiatingPiece)
     {
         /*if (ChessManager.Instance.isSelectedForDetaching || !isAttached) return true;
         return false;*/
@@ -367,7 +367,7 @@ public class ChessPiece : MonoBehaviour
     {
         if (isAlive)
         {
-            if (ChessManager.Instance.CurrentTurn != chessPieceTeam) return;
+            if (ChessManager.Instance?.CurrentTurn != chessPieceTeam) return;
 
             modelAnimator.SetBool("hover", true);
         }

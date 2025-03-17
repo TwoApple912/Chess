@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,6 +38,13 @@ public class IngameMenuAnimatorController : MonoBehaviour, IPointerExitHandler
         
         if (buttonsAnimators.Contains(menuIconAnimator)) buttonsAnimators.Remove(menuIconAnimator);
         if (buttonsAnimators.Contains(resumeButtonAnimator)) buttonsAnimators.Remove(resumeButtonAnimator);
+        
+        RulesCanvas.Instance.onRulesOpened += CloseMenu;
+    }
+    
+    private void OnDestroy()
+    {
+        RulesCanvas.Instance.onRulesOpened -= CloseMenu;
     }
 
     private void Update()
@@ -58,6 +66,8 @@ public class IngameMenuAnimatorController : MonoBehaviour, IPointerExitHandler
 
     public void OpenMenu()
     {
+        if (RulesCanvas.Instance.IsOpen) return;
+        
         isMenuOpen = true;
         StartCoroutine(AnimateMenuElement());
         ambience.SetBool("isMenuOpen", isMenuOpen);

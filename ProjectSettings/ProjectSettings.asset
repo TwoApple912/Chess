@@ -539,7 +539,7 @@ PlayerSettings:
   openGLRequireES32: 0
   m_TemplateCustomTags:
     BACKGROUND: 
-    OPTIMIZE_FOR_PIXEL_ART: 
+    OPTIMIZE_FOR_PIXEL_ART: true
     PRODUCT_DESCRIPTION: 
     SCALE_TO_FIT: 
   mobileMTRendering:
