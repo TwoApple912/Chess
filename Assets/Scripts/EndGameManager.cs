@@ -66,5 +66,8 @@ public class EndGameManager : MonoBehaviour
         
         // Apply camera offset
         CameraManager.Instance.TriggerEndGameCamera();
+        
+        // Other system stuff
+        GameTimerManager.Instance.StopTimer();
     }
 }

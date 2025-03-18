@@ -23,7 +23,8 @@ public class Knight : ChessPiece
                     availableMoves.Add(new Vector2Int(newX, newY));
                 else if (board[newX, newY]?.chessPieceTeam == chessPieceTeam &&
                          board[newX, newY].IsAvailableToAttach(false) && IsAvailableToAttach(true) &&
-                         board[newX, newY].value != this.value) availableMoves.Add(new Vector2Int(newX, newY));
+                         (board[newX, newY].value != this.value || ChessManager.Instance.WildMode))
+                    availableMoves.Add(new Vector2Int(newX, newY));
             }
         }
 

@@ -1518,7 +1518,7 @@ Light:
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_ColorTemperature: 4250
+  m_ColorTemperature: 4000
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
@@ -2509,6 +2509,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1665f157343d3554fb5777bb5252c200, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  wildMode: 1
   currentTurn: 0
   currentTeamIsChecked: 0
   whiteAgreeToDraw: 0
@@ -2846,7 +2847,7 @@ MonoBehaviour:
       type: 3}
     m_PressedSprite: {fileID: 21300000, guid: 7c32e3a2e7f0e6a45a24b478c6fe60b0, type: 3}
     m_SelectedSprite: {fileID: 21300000, guid: 7c32e3a2e7f0e6a45a24b478c6fe60b0, type: 3}
-    m_DisabledSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 21300000, guid: 11cea0a9c2792f54580a10f4964afcab, type: 3}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
@@ -2940,6 +2941,7 @@ MonoBehaviour:
   gamePaused: 0
   startMenuSceneName: Start Menu
   canvasGroup: {fileID: 0}
+  ingameMenuActionButtons: []
   drawOffer: {fileID: 1955338827}
 --- !u!4 &1239452874
 Transform:
@@ -4180,7 +4182,7 @@ MonoBehaviour:
       type: 3}
     m_PressedSprite: {fileID: 21300000, guid: 2a1d31822c4a1ab4f8cb2c9efed63a8d, type: 3}
     m_SelectedSprite: {fileID: 21300000, guid: 2a1d31822c4a1ab4f8cb2c9efed63a8d, type: 3}
-    m_DisabledSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 21300000, guid: e381501d4f3f62d45bd78e0d176a5561, type: 3}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
@@ -4717,7 +4719,7 @@ MonoBehaviour:
       type: 3}
     m_PressedSprite: {fileID: 21300000, guid: c99ba5f1084fe5c46b27e86ea28239e9, type: 3}
     m_SelectedSprite: {fileID: 21300000, guid: c99ba5f1084fe5c46b27e86ea28239e9, type: 3}
-    m_DisabledSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 21300000, guid: 2ababdf5220006347a0858f172e71bec, type: 3}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted

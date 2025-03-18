@@ -24,7 +24,7 @@ public class Pawn : ChessPiece
             else if (!hasMoved && board[currentX, currentY + 2 * direction].chessPieceTeam == chessPieceTeam &&
                      board[currentX, currentY + 2 * direction].IsAvailableToAttach(false) &&
                      IsAvailableToAttach(true) &&
-                     board[currentX, currentY + 2 * direction].value != this.value)
+                     (board[currentX, currentY + 2 * direction].value != this.value || ChessManager.Instance.WildMode))
             {
                 availableMoves.Add(new Vector2Int(currentX, currentY + 2 * direction));
             }
@@ -33,7 +33,7 @@ public class Pawn : ChessPiece
                  board[currentX, currentY + direction].chessPieceTeam == chessPieceTeam &&
                  board[currentX, currentY + direction].IsAvailableToAttach(false) &&
                  IsAvailableToAttach(true) &&
-                 board[currentX, currentY + direction].value != this.value) // Add attachment for moving forward
+                 (board[currentX, currentY + direction].value != this.value || ChessManager.Instance.WildMode)) // Add attachment for moving forward
             availableMoves.Add(new Vector2Int(currentX, currentY + direction));
 
         // Capture diagonal left

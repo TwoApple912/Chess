@@ -1,19 +1,23 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
 {
     public static MenuManager Instance;
 
     public bool gamePaused = false;
+
+    public event Action onGamePaused;
     
     [Header("References")]
     [SerializeField] private string startMenuSceneName = "Start Menu";
     [Space]
     [SerializeField] private CanvasGroup canvasGroup;
-    [Space]
+    [SerializeField] private List<Button> ingameMenuActionButtons;
     [SerializeField] private GameObject drawOffer;
     
     private void Awake()
@@ -22,7 +26,13 @@ public class MenuManager : MonoBehaviour
         else Instance = this;
 
         if (!canvasGroup) canvasGroup = GameObject.Find("Canvas").GetComponent<CanvasGroup>();
-        
+        if (ingameMenuActionButtons == null)
+            ingameMenuActionButtons = new List<Button>()
+            {
+                GameObject.Find("Canvas/Menu/Undo Button").GetComponent<Button>(),
+                GameObject.Find("Canvas/Menu/Offer Draw Button").GetComponent<Button>(),
+                GameObject.Find("Canvas/Menu/Resign Button").GetComponent<Button>()
+            };
         if (!drawOffer) drawOffer = GameObject.Find("Canvas/Draw Offer");
     }
     
@@ -40,8 +50,10 @@ public class MenuManager : MonoBehaviour
     {
         Time.timeScale = 0;
         gamePaused = true;
+        onGamePaused?.Invoke();
         
         GameTimerManager.Instance.StopTimer();
+        EnableInGameMenuActions(false);
     }
     
     public void ResumeGame()
@@ -50,6 +62,7 @@ public class MenuManager : MonoBehaviour
         gamePaused = false;
         
         GameTimerManager.Instance.StartTimer();
+        EnableInGameMenuActions(true);
     }
     
     public void NewGame()
@@ -87,13 +100,19 @@ public class MenuManager : MonoBehaviour
     public void OpenRules()
     {
         RulesCanvas.Instance.ShowRules();
-
+        
         StartCoroutine(MenuManager.AlphaFadeCanvasGroup(canvasGroup, 0.01f, 1));
+        
+        GameTimerManager.Instance.StopTimer();
+        EnableInGameMenuActions(false);
     }
 
     void OnRuleClosed()
     {
         StartCoroutine(MenuManager.AlphaFadeCanvasGroup(canvasGroup, 1f, 1));
+        
+        GameTimerManager.Instance.StartTimer();
+        EnableInGameMenuActions(true);
     }
     
     public static IEnumerator AlphaFadeCanvasGroup(CanvasGroup cg ,float targetAlpha, float duration)
@@ -109,5 +128,10 @@ public class MenuManager : MonoBehaviour
         }
 
         cg.alpha = targetAlpha;
+    }
+
+    public void EnableInGameMenuActions(bool enable)
+    {
+        foreach (var button in ingameMenuActionButtons) button.interactable = enable;
     }
 }

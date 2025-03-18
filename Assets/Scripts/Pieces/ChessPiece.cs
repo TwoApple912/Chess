@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,6 +35,9 @@ public class ChessPiece : MonoBehaviour
     [Space]
     public bool isAttached = false;
     public ChessPiece attachedPiece;
+    public ChessPiece initiateAttachPiece;
+    [Space]
+    public bool isPromotionPiece;
     
     private Transform model;
     private bool hasMoveState;
@@ -44,8 +48,10 @@ public class ChessPiece : MonoBehaviour
     [Header("Attach Parameter")]
     [Tooltip("Apply to white pieces. Multiply with -1 for black pieces.")]
     [SerializeField] private Vector3 carrierOffset = new(-0.2f, 0f, 0.15f);
+        public Vector3 CarrierOffset => carrierOffset;
     [Tooltip("Apply to white pieces. Multiply with -1 for black pieces.")]
     [SerializeField] private Vector3 adjunctOffset = new(0.25f, 0f, -0.2f);
+        public Vector3 AdjunctOffset => adjunctOffset;
     [SerializeField] private float adjunctSize = 0.85f;
     
     [Header("Movement Parameter")]
@@ -129,7 +135,11 @@ public class ChessPiece : MonoBehaviour
 
     public bool? GetAttachedStatus() // True for carrier, false for adjunct, null for no attachment
     {
-        if (isAttached) return value > attachedPiece.value;
+        if (isAttached)
+        {
+            if (ChessManager.Instance.WildMode || value == attachedPiece.value) return this == initiateAttachPiece;
+            return value > attachedPiece.value;
+        }
         return null;
     }
     
@@ -187,10 +197,13 @@ public class ChessPiece : MonoBehaviour
         hasMoved = true;
         isAttached = true;
         attachedPiece = otherPiece;
+        initiateAttachPiece = this;
         
         offsetPosition = chessPieceTeam == ChessPieceTeam.White ? carrierOffset : -carrierOffset;
         if (allowVisualMovement)
             SmoothMovePieceTo(ChessManager.Instance.tiles[currentX, currentY].transform.position, 1.5f);
+
+        //if (ChessManager.Instance.WildMode && this is Pawn) hasMoved = false; // Allow double movement for Pawns after attaching
     }
     
     public void AdjunctAttach(ChessPiece otherPiece, bool allowVisualMovement = true)
@@ -198,17 +211,21 @@ public class ChessPiece : MonoBehaviour
         hasMoved = true;
         isAttached = true;
         attachedPiece = otherPiece;
+        initiateAttachPiece = otherPiece;
         
         offsetPosition = chessPieceTeam == ChessPieceTeam.White ? adjunctOffset : -adjunctOffset;
         ResizeModel(adjunctSize);
         if (allowVisualMovement)
             AnimatedMovePieceTo(ChessManager.Instance.tiles[otherPiece.currentX, otherPiece.currentY].transform.position);
+        
+        //if (ChessManager.Instance.WildMode && this is Pawn) hasMoved = false; // Allow double movement for Pawns after attaching
     }
     
     public void Detach(bool isMovingAway, bool enableMoveAnimation = true)
     {
         isAttached = false;
         attachedPiece = null;
+        initiateAttachPiece = null;
         
         offsetPosition = Vector3.zero;
         ResizeModel(1);
@@ -220,18 +237,16 @@ public class ChessPiece : MonoBehaviour
     public ChessPiece GetCarrierPiece()
     {
         if (!isAttached) return null;
-        
+
+        if (ChessManager.Instance.WildMode || value == attachedPiece.value) return initiateAttachPiece;
         return value > attachedPiece.value ? this : attachedPiece;
     }
 
     public virtual bool IsAvailableToAttach(bool initiatingPiece)
     {
-        /*if (ChessManager.Instance.isSelectedForDetaching || !isAttached) return true;
-        return false;*/
-        
         if (!isAttached) return true;
         if (ChessManager.Instance.isSelectedForDetaching && initiatingPiece) return true;
-
+        
         return false;
     }
 
@@ -270,14 +285,16 @@ public class ChessPiece : MonoBehaviour
 
     public void AnimatedMovePieceTo(Vector3 target, float durationMultiplier = 1f, float initialDelay = 0)
     {
-        Vector3 targetPosition = target + offsetPosition;
-        
-        Coroutine coroutine = StartCoroutine(AnimatedMovePieceCoroutine(targetPosition, durationMultiplier, initialDelay));
-        StartCoroutine(RotateToCoroutine(targetPosition, initialDelay));
+        if (enabled && gameObject.activeInHierarchy)
+        {
+            Vector3 targetPosition = target + offsetPosition;
 
-        ChessManager.Instance?.activeMoveCoroutine.Add(coroutine);
-        
-        Debug.Log(this + " AnimatedMovePieceTo");
+            Coroutine coroutine =
+                StartCoroutine(AnimatedMovePieceCoroutine(targetPosition, durationMultiplier, initialDelay));
+            StartCoroutine(RotateToCoroutine(targetPosition, initialDelay));
+
+            ChessManager.Instance?.activeMoveCoroutine.Add(coroutine);
+        }
     }
     private IEnumerator AnimatedMovePieceCoroutine(Vector3 target, float durationMultiplier = 1f, float initialDelay = 0)
     {
@@ -367,7 +384,8 @@ public class ChessPiece : MonoBehaviour
     {
         if (isAlive)
         {
-            if (ChessManager.Instance?.CurrentTurn != chessPieceTeam) return;
+            if (ChessManager.Instance?.CurrentTurn != chessPieceTeam ||
+                (ChessManager.Instance?.IsPromoting == true && !isPromotionPiece)) return;
 
             modelAnimator.SetBool("hover", true);
         }
@@ -375,10 +393,7 @@ public class ChessPiece : MonoBehaviour
 
     private void OnMouseExit()
     {
-        if (isAlive)
-        {
-            modelAnimator.SetBool("hover", false);
-        }
+        if (isAlive) modelAnimator.SetBool("hover", false);
     }
 
     private void ResizeModel(float size, float durationMultiplier = 1)

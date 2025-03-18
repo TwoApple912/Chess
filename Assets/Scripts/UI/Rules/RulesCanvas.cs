@@ -40,7 +40,7 @@ public class RulesCanvas : MonoBehaviour
         onRulesOpened?.Invoke();
         
         isOpen = true;
-        rulesCamera.Priority = 10;
+        rulesCamera.Priority = 20;
 
         if (currentCoroutine != null) StopCoroutine(currentCoroutine);
         currentCoroutine = StartCoroutine(MenuManager.AlphaFadeCanvasGroup(canvasGroup, 1, fadeDuration));

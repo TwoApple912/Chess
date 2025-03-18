@@ -65,7 +65,7 @@ public class King : ChessPiece
     
     public override bool IsAvailableToAttach(bool initiatingPiece)
     {
-        if (ChessManager.Instance.CurrentTeamIsChecked) return false;
+        if (ChessManager.Instance.CurrentTeamIsChecked && !ChessManager.Instance.WildMode) return false;
         
         return base.IsAvailableToAttach(initiatingPiece);
     }

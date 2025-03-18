@@ -38,10 +38,13 @@ public class IngameMenuAnimatorController : MonoBehaviour, IPointerExitHandler
         
         if (buttonsAnimators.Contains(menuIconAnimator)) buttonsAnimators.Remove(menuIconAnimator);
         if (buttonsAnimators.Contains(resumeButtonAnimator)) buttonsAnimators.Remove(resumeButtonAnimator);
-        
+    }
+
+    private void Start()
+    {
         RulesCanvas.Instance.onRulesOpened += CloseMenu;
     }
-    
+
     private void OnDestroy()
     {
         RulesCanvas.Instance.onRulesOpened -= CloseMenu;

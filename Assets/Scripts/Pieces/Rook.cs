@@ -33,7 +33,8 @@ public class Rook : ChessPiece
                 {
                     if (board[x, y]?.chessPieceTeam != chessPieceTeam ||
                         (board[x, y]?.chessPieceTeam == chessPieceTeam && board[x, y].IsAvailableToAttach(false) &&
-                         IsAvailableToAttach(true) && board[x, y].value != this.value))
+                         IsAvailableToAttach(true) &&
+                         (board[x, y].value != this.value || ChessManager.Instance.WildMode)))
                         availableMoves.Add(new Vector2Int(x, y));
                     break;
                 }

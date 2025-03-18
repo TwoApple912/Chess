@@ -98,8 +98,10 @@ public class GameTimerManager : MonoBehaviour
                 
                 if (whiteTimer <= 0)
                 {
-                    EndGameManager.Instance.WinEndGame(EndGameManager.WinType.TimeOut, ChessPieceTeam.Black);
+                    whiteTimer = 0;
                     isRunning = false;
+                    
+                    EndGameManager.Instance.WinEndGame(EndGameManager.WinType.TimeOut, ChessPieceTeam.Black);
                 }
             }
             else
@@ -109,8 +111,10 @@ public class GameTimerManager : MonoBehaviour
                 
                 if (blackTimer <= 0)
                 {
-                    EndGameManager.Instance.WinEndGame(EndGameManager.WinType.TimeOut, ChessPieceTeam.White);
+                    blackTimer = 0;
                     isRunning = false;
+                    
+                    EndGameManager.Instance.WinEndGame(EndGameManager.WinType.TimeOut, ChessPieceTeam.White);
                 }
             }
         }
@@ -120,6 +124,8 @@ public class GameTimerManager : MonoBehaviour
     {
         int minutes = Mathf.FloorToInt(time / 60);
         int seconds = Mathf.FloorToInt(time % 60);
+        minutes = Mathf.Max(0, minutes);
+        seconds = Mathf.Max(0, seconds);
         return $"{minutes:D2}:{seconds:D2}";
     }
     
@@ -135,5 +141,11 @@ public class GameTimerManager : MonoBehaviour
             blackTimer += increment;
             blackTimerText.text = FormatTime(blackTimer);
         }
+    }
+
+    public void ChangeTimer(float newWhiteTimer, float newBlackTimer)
+    {
+        whiteTimer = newWhiteTimer;
+        blackTimer = newBlackTimer;
     }
 }

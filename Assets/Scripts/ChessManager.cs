@@ -9,6 +9,9 @@ public class ChessManager : MonoBehaviour
 {
     public static ChessManager Instance;
     public event Action OnTurnEnd;
+    
+    [SerializeField] private bool wildMode;
+        public bool WildMode => wildMode;
 
     [Header("Game Tracker")]
     public ChessPiece[,] chessPieces;
@@ -37,6 +40,9 @@ public class ChessManager : MonoBehaviour
     
     [Header("Moves")]
     private List<Move> moveHistory = new List<Move>();
+
+    private float whiteTimerAtTheStartOfTheTurn;
+    private float blackTimerAtTheStartOfTheTurn;
     
     [Header("Other Trackers")]
     [SerializeField] private int haveMoveCounter = 0;
@@ -90,6 +96,7 @@ public class ChessManager : MonoBehaviour
     [SerializeField] private float promotionDelay = 0.5f;
     [Space]
     [SerializeField] private bool isPromoting;
+        public bool IsPromoting => isPromoting;
     
     [Header("References")]
     [SerializeField] private CapturedPiecePlacer capturedPiecePlacerScript;
@@ -114,6 +121,7 @@ public class ChessManager : MonoBehaviour
 
     void Start()
     {
+        wildMode = GameConfigurations.isWildMode;
         Debug.Log($"Wild mode: {GameConfigurations.isWildMode}");
         Debug.Log($"{GameConfigurations.PlayerTimerMinute}|{GameConfigurations.PlayerIncrementSecond}");
 
@@ -355,12 +363,48 @@ public class ChessManager : MonoBehaviour
         
         AssignKingVariable();
         
+        NewTurnFunctions();
         GameTimerManager.Instance.StartTimer();
     }
 
     #endregion
 
     #region Turn System
+    
+    IEnumerator PreEndturnCheck()
+    {
+        // Promotion check
+        List<ChessPiece> pawnsToPromote = new List<ChessPiece>();
+        foreach (ChessPiece piece in chessPieces)
+        {
+            if (piece && (!piece.isAttached || wildMode) && piece is Pawn && piece.chessPieceTeam == currentTurn &&
+                ((piece.chessPieceTeam == ChessPieceTeam.White && piece.currentY == boardSize - 1) ||
+                 (piece.chessPieceTeam == ChessPieceTeam.Black && piece.currentY == 0)))
+            {
+                Debug.Log(piece);
+                pawnsToPromote.Add(piece);
+            }
+
+            if (piece && piece.isAttached && wildMode && piece.attachedPiece is Pawn &&
+                piece.attachedPiece.chessPieceTeam == currentTurn &&
+                ((piece.attachedPiece.chessPieceTeam == ChessPieceTeam.White &&
+                  piece.attachedPiece.currentY == boardSize - 1) ||
+                 (piece.attachedPiece.chessPieceTeam == ChessPieceTeam.Black && piece.attachedPiece.currentY == 0)))
+            {
+                Debug.Log(piece.attachedPiece);
+                pawnsToPromote.Add(piece.attachedPiece);
+            }
+        }
+        
+        foreach (ChessPiece pawn in pawnsToPromote)
+        {
+            if (!moveHistory.Last().isPromotion) moveHistory.Last().isPromotion = true;
+            else moveHistory.Last().isPromotion1 = true;
+            yield return StartCoroutine(PerformPromotion(pawn));
+        }
+
+        EndTurn();
+    }
 
     void EndTurn()
     {
@@ -412,6 +456,17 @@ public class ChessManager : MonoBehaviour
         CameraManager.Instance.SwitchCamera();
 
         activeMoveCoroutine.Clear();
+        
+        NewTurnFunctions();
+    }
+
+    void NewTurnFunctions()
+    {
+        if (GameConfigurations.PlayerTimerMinute != 0)
+        {
+            whiteTimerAtTheStartOfTheTurn = GameTimerManager.Instance.whiteTimer;
+            blackTimerAtTheStartOfTheTurn = GameTimerManager.Instance.blackTimer;
+        } 
     }
 
     #endregion
@@ -838,6 +893,12 @@ public class ChessManager : MonoBehaviour
             selectedPiece = carrier;
             possibleMoves.Clear();
             possibleMoves = carrier.GetAvailableMoves(chessPieces, boardSize);
+            if (wildMode)
+            {
+                HashSet<Vector2Int> uniqueMoves = new HashSet<Vector2Int>(possibleMoves);
+                uniqueMoves.UnionWith(carrier.attachedPiece.GetAvailableMoves(chessPieces, boardSize));
+                possibleMoves = uniqueMoves.ToList();
+            }
             isSelectingAttachedUnit = true;
 
             SimulatePieceToCheckForCheckmate(selectedPiece, ref possibleMoves,
@@ -872,6 +933,9 @@ public class ChessManager : MonoBehaviour
         ChessPiece capturedPiece = chessPieces[x, y];
         moveHistory.Add(new Move(piece, new Vector2Int(piece.currentX, piece.currentY), new Vector2Int(x, y),
             capturedPiece));
+        moveHistory.Last().initiateAttachPiece = piece.initiateAttachPiece;
+        if (GameConfigurations.PlayerTimerMinute != 0)
+            moveHistory.Last().AssignTimer(whiteTimerAtTheStartOfTheTurn, blackTimerAtTheStartOfTheTurn);
         
         // Record move for 50 move rule
         if (piece is Pawn || capturedPiece != null) haveMoveCounter = 0;
@@ -905,10 +969,10 @@ public class ChessManager : MonoBehaviour
             {
                 detachedPieceThatAreMovedAwayFrom = piece.attachedPiece;
                 
+                moveHistory.Last().detachFrom = detachedPieceThatAreMovedAwayFrom;
+                
                 piece.attachedPiece.Detach(false);
                 piece.Detach(true);
-                
-                moveHistory.Last().detachFrom = detachedPieceThatAreMovedAwayFrom;
             }
 
             EnPassantCheck(piece, x, y);
@@ -1008,9 +1072,11 @@ public class ChessManager : MonoBehaviour
                 pieceToAttach.Detach(true, allowVisualMovement);
             }
 
-            (ChessPiece higherPiece, ChessPiece lowerPiece) = pieceToAttach.value > targetPiece.value
-                ? (pieceToAttach, targetPiece) 
-                : (targetPiece, pieceToAttach);
+            (ChessPiece higherPiece, ChessPiece lowerPiece) = targetPiece.value > pieceToAttach.value
+                ? (targetPiece, pieceToAttach)
+                : targetPiece.value < pieceToAttach.value
+                    ? (pieceToAttach, targetPiece)
+                    : (targetPiece, pieceToAttach);
 
             higherPiece.CarrierAttach(lowerPiece, higherPiece == selectedPiece ? false : allowVisualMovement);
             lowerPiece.AdjunctAttach(higherPiece, allowVisualMovement);
@@ -1020,6 +1086,9 @@ public class ChessManager : MonoBehaviour
     public void UndoMove()
     {
         if (moveHistory.Count == 0) return;
+
+        if (GameConfigurations.PlayerTimerMinute != 0)
+            GameTimerManager.Instance.ChangeTimer(moveHistory.Last().whiteTimer, moveHistory.Last().blackTimer);
         
         Move lastMove = moveHistory[moveHistory.Count - 1];
         moveHistory.RemoveAt(moveHistory.Count - 1);
@@ -1047,11 +1116,15 @@ public class ChessManager : MonoBehaviour
             Attach(lastMove.piece, lastMove.detachFrom, false);
             lastMove.piece.PlacePieceInCurrentCoordinate();
             lastMove.detachFrom.PlacePieceInCurrentCoordinate();
+            lastMove.piece.initiateAttachPiece = lastMove.initiateAttachPiece;
+            lastMove.detachFrom.initiateAttachPiece = lastMove.initiateAttachPiece;
         }
         if (lastMove.attachedPiece && !lastMove.attachedTo && !lastMove.detachFrom)
         {
             lastMove.attachedPiece.UpdateCoordinate(lastMove.startPosition.x, lastMove.startPosition.y);
             lastMove.attachedPiece.PlacePieceInCurrentCoordinate();
+            lastMove.piece.initiateAttachPiece = lastMove.initiateAttachPiece;
+            lastMove.detachFrom.initiateAttachPiece = lastMove.initiateAttachPiece;
         }
         
         // Special moves
@@ -1074,10 +1147,50 @@ public class ChessManager : MonoBehaviour
         }
         else if (lastMove.isPromotion)
         {
-            chessPieces[lastMove.endPosition.x, lastMove.endPosition.y] = lastMove.promotedPiece;
+            if (lastMove.attachedPiece && !lastMove.attachedTo && !lastMove.detachFrom)
+            {
+                ChessPiece nonInitiateAttachPiece;
+                if (lastMove.initiateAttachPiece == lastMove.piece) nonInitiateAttachPiece = lastMove.attachedPiece;
+                else nonInitiateAttachPiece = lastMove.piece;
+
+                Debug.Log(lastMove.initiateAttachPiece);
+                lastMove.initiateAttachPiece.CarrierAttach(nonInitiateAttachPiece);
+                nonInitiateAttachPiece.AdjunctAttach(lastMove.initiateAttachPiece);
+                
+                chessPieces[lastMove.endPosition.x, lastMove.endPosition.y] = null;
+            }
+            else
+            {
+                chessPieces[lastMove.endPosition.x, lastMove.endPosition.y] = lastMove.promotedPiece;
+            }
+            
             lastMove.promotedPiece.KillPiece(false);
             Destroy(lastMove.promotedPiece.gameObject);
             lastMove.piece.RevivePiece(lastMove.startPosition.x, lastMove.startPosition.y);
+
+            if (lastMove.isPromotion1)
+            {
+                if (lastMove.attachedPiece && !lastMove.attachedTo && !lastMove.detachFrom)
+                {
+                    ChessPiece nonInitiateAttachPiece;
+                    if (lastMove.initiateAttachPiece == lastMove.piece) nonInitiateAttachPiece = lastMove.attachedPiece;
+                    else nonInitiateAttachPiece = lastMove.piece;
+
+                    Debug.Log(lastMove.initiateAttachPiece);
+                    lastMove.initiateAttachPiece.CarrierAttach(nonInitiateAttachPiece);
+                    nonInitiateAttachPiece.AdjunctAttach(lastMove.initiateAttachPiece);
+                
+                    chessPieces[lastMove.endPosition.x, lastMove.endPosition.y] = null;
+                }
+                else
+                {
+                    chessPieces[lastMove.endPosition.x, lastMove.endPosition.y] = lastMove.promotedPiece1;
+                }
+            
+                lastMove.promotedPiece1.KillPiece(false);
+                Destroy(lastMove.promotedPiece1.gameObject);
+                lastMove.piece.RevivePiece(lastMove.startPosition.x, lastMove.startPosition.y);
+            }
         }
 
         // Redo capture piece
@@ -1158,25 +1271,10 @@ public class ChessManager : MonoBehaviour
         Debug.Log("Pussy King at " + new Vector2Int(newKingX, king.currentY));
     }
 
-    IEnumerator PreEndturnCheck()
-    {
-        // Promotion check
-        List<ChessPiece> pawnsToPromote = new List<ChessPiece>();
-        foreach (ChessPiece piece in chessPieces)
-            if (piece && piece is Pawn && (piece.currentY == 0 || piece.currentY == boardSize - 1) && !piece.isAttached)
-                pawnsToPromote.Add(piece);
-        foreach (ChessPiece pawn in pawnsToPromote)
-        {
-            moveHistory.Last().isPromotion = true;
-            yield return StartCoroutine(PerformPromotion(pawn));
-        }
-        
-        EndTurn();
-    }
-
     IEnumerator PerformPromotion(ChessPiece pawn)
     {
         isPromoting = true;
+        GameTimerManager.Instance.StopTimer();
 
         yield return new WaitForSeconds(pawn.AnimatedMoveDuration + 0.25f);
 
@@ -1201,11 +1299,44 @@ public class ChessManager : MonoBehaviour
             chessPieces[pawn.currentX, pawn.currentY] = selectedPiece.GetComponent<ChessPiece>();
 
             ChessPiece pieceScript = selectedPiece.GetComponent<ChessPiece>();
-            pieceScript.AnimatedMovePieceTo(tiles[pawn.currentX, pawn.currentY].transform.position);
+            
             pieceScript.UpdateCoordinate(pawn.currentX, pawn.currentY);
             pieceScript.hasMoved = true;
             selectedPiece.gameObject.layer = LayerMask.NameToLayer("Interactive");
             selectedPiece.transform.parent = null;
+            
+            if (!pawn.isAttached)
+                pieceScript.AnimatedMovePieceTo(tiles[pawn.currentX, pawn.currentY].transform.position);
+            else
+            {
+                ChessPiece attachedPiece = pawn.attachedPiece;
+                
+                pawn.attachedPiece.attachedPiece = pieceScript;
+                pieceScript.attachedPiece = pawn.attachedPiece;
+                pawn.attachedPiece.initiateAttachPiece =
+                    pawn.attachedPiece.value > pieceScript.value ? pawn.attachedPiece : pieceScript;
+                pieceScript.initiateAttachPiece =
+                    pawn.attachedPiece.value > pieceScript.value ? pawn.attachedPiece : pieceScript;
+                
+                if (pieceScript.value > attachedPiece.value)
+                {
+                    pieceScript.CarrierAttach(attachedPiece, false);
+                    pieceScript.AnimatedMovePieceTo(
+                        tiles[pieceScript.currentX, pieceScript.currentY].transform.position, 1.5f);
+                    
+                    attachedPiece.Detach(false, false);
+                    attachedPiece.AdjunctAttach(pieceScript, true);
+                }
+                else
+                { 
+                    pieceScript.AdjunctAttach(attachedPiece, false);
+                    pieceScript.AnimatedMovePieceTo(
+                        tiles[pieceScript.currentX, pieceScript.currentY].transform.position, 1.5f);
+                    
+                    attachedPiece.Detach(false, false);
+                    attachedPiece.CarrierAttach(pieceScript, true);
+                }
+            }
 
             if (pawn.chessPieceTeam == ChessPieceTeam.White)
             {
@@ -1218,8 +1349,11 @@ public class ChessManager : MonoBehaviour
                 remainingBlackPieces.Add(pieceScript);
             }
 
+            pieceScript.isPromotionPiece = false;
+
             pawn.transform.position -= new Vector3(0, 5, 0); // Make the pawn go bye bye
-            moveHistory.Last().promotedPiece = pieceScript;
+            if (!moveHistory.Last().isPromotion1) moveHistory.Last().promotedPiece = pieceScript;
+            else moveHistory.Last().promotedPiece1 = pieceScript;
         }
 
         yield return StartCoroutine(promotionBehavior.ExitPromotionSequence());
@@ -1227,6 +1361,7 @@ public class ChessManager : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
 
         isPromoting = false;
+        GameTimerManager.Instance.StartTimer();
         Destroy(promotionBehavior.gameObject);
     }
     
@@ -1272,16 +1407,20 @@ public class ChessManager : MonoBehaviour
 
             // Pawn capture
             if (piece is Pawn && Mathf.Abs(move.x - piece.currentX) == 1 &&
-                Mathf.Abs(move.y - piece.currentY) == 1)
+                Mathf.Abs(move.y - piece.currentY) == 1 &&
+                chessPieces[move.x, move.y] != null &&
+                chessPieces[move.x, move.y].chessPieceTeam != piece.chessPieceTeam)
             {
                 simulatedBoard[move.x, move.y] = piece;
+                Debug.Log(piece + " " + new Vector2Int(move.x, move.y));
+                Debug.Log(piece + " " + new Vector2Int(move.x, move.y - ((int)piece.chessPieceTeam == 0 ? 1 : -1)));
                 simulatedBoard[move.x, move.y - ((int)piece.chessPieceTeam == 0 ? 1 : -1)] = null;
             }
 
             if (isSelectingAttachedUnit)
             {
                 if (!isSelectedForDetaching)
-                { 
+                {
                     simulatedBoard[piece.attachedPiece.currentX, piece.attachedPiece.currentY] = null;
                 }
                 else
@@ -1317,6 +1456,11 @@ public class ChessManager : MonoBehaviour
         
         return false;
     }
+
+    bool IsWithinBounds(int x, int y)
+    {
+        return x >= 0 && x < boardSize && y >= 0 && y < boardSize;
+    }
     
     #endregion
     
@@ -1343,6 +1487,9 @@ public class ChessManager : MonoBehaviour
 
 public class Move
 {
+    public float whiteTimer;
+    public float blackTimer;
+    
     public ChessPiece piece;
     public Vector2Int startPosition;
     public Vector2Int endPosition;
@@ -1356,12 +1503,16 @@ public class Move
     public bool isCastling;
     public bool isPromotion;
     public ChessPiece promotedPiece;
+    public bool isPromotion1;
+    public ChessPiece promotedPiece1;
 
     public ChessPiece attachedTo;
     public ChessPiece detachFrom;
     public ChessPiece attachedPiece;
 
     public bool attachedToHasMovedState;
+
+    public ChessPiece initiateAttachPiece;
         
     public Move(ChessPiece piece, Vector2Int startPosition, Vector2Int endPosition, ChessPiece capturedPiece)
     {
@@ -1380,5 +1531,11 @@ public class Move
     {
         attachedTo = piece;
         attachedToHasMovedState = piece.hasMoved;
+    }
+
+    public void AssignTimer(float whiteTime, float blackTime)
+    {
+        whiteTimer = whiteTime;
+        blackTimer = blackTime;
     }
 }
