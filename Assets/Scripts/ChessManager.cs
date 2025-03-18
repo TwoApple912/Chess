@@ -19,6 +19,8 @@ public class ChessManager : MonoBehaviour
         public ChessPieceTeam CurrentTurn => currentTurn;
     [SerializeField] private bool currentTeamIsChecked;
         public bool CurrentTeamIsChecked => currentTeamIsChecked;
+    [SerializeField] private bool otherTeamIsChecked;
+        public bool OtherTeamIsChecked => otherTeamIsChecked;
     [Space]
     private List<Vector2Int> possibleMoves = new List<Vector2Int>();
     public Vector2Int? enPassantMove;
@@ -121,14 +123,11 @@ public class ChessManager : MonoBehaviour
 
     void Start()
     {
-        wildMode = GameConfigurations.isWildMode;
-        Debug.Log($"Wild mode: {GameConfigurations.isWildMode}");
-        Debug.Log($"{GameConfigurations.PlayerTimerMinute}|{GameConfigurations.PlayerIncrementSecond}");
-
         ApplyConfigurations();
         
         GenerateTiles();
-        StartCoroutine(SpawnPiecesInTheDefaultLayout());
+        if (!GameConfigurations.isChess960) StartCoroutine(SpawnPiecesInTheDefaultLayout());
+        else StartCoroutine(SpawnPiecesUsingTheChess960Rules());
     }
 
     private void Update()
@@ -168,7 +167,10 @@ public class ChessManager : MonoBehaviour
 
     void ApplyConfigurations()
     {
-        // TODO: Wild mode
+        wildMode = GameConfigurations.isWildMode;
+        
+        Debug.Log($"Wild mode: {GameConfigurations.isWildMode}");
+        Debug.Log($"{GameConfigurations.PlayerTimerMinute}|{GameConfigurations.PlayerIncrementSecond}");
     }
     
     #endregion
@@ -306,8 +308,79 @@ public class ChessManager : MonoBehaviour
 
         StartCoroutine(SpawnPieces(whitePiecesToSpawn));
         yield return StartCoroutine(SpawnPieces(blackPiecesToSpawn));
-
         EndInitialGameSetup();
+    }
+
+    IEnumerator SpawnPiecesUsingTheChess960Rules()
+    {
+        isSpawningPieces = true;
+        List<(ChessPieceType type, ChessPieceTeam team, int x, int y)> whitePiecesToSpawn =
+            new List<(ChessPieceType, ChessPieceTeam, int, int)>();
+        List<(ChessPieceType type, ChessPieceTeam team, int x, int y)> blackPiecesToSpawn =
+            new List<(ChessPieceType, ChessPieceTeam, int, int)>();
+        
+        // Generate back rank layout for Chess960
+        ChessPieceType[] backRank = GenerateChess960BackRankLayout();
+
+        for (int x = 0; x < 8; x++) whitePiecesToSpawn.Add((backRank[x], ChessPieceTeam.White, x, 0));
+        for (int x = 0; x < 8; x++) blackPiecesToSpawn.Add((backRank[x], ChessPieceTeam.Black, x, 7));
+        ListRandomizer.Shuffle(whitePiecesToSpawn);
+        ListRandomizer.Shuffle(blackPiecesToSpawn);
+        
+        for (int x = 0; x < 8; x++) whitePiecesToSpawn.Add((ChessPieceType.Pawn, ChessPieceTeam.White, x, 1));
+        for (int x = 0; x < 8; x++) blackPiecesToSpawn.Add((ChessPieceType.Pawn, ChessPieceTeam.Black, x, 6));
+        
+        StartCoroutine(SpawnPieces(whitePiecesToSpawn));
+        yield return StartCoroutine(SpawnPieces(blackPiecesToSpawn));
+        EndInitialGameSetup();
+    }
+    
+    ChessPieceType[] GenerateChess960BackRankLayout()
+    {
+        // Array to store layout of 8 positions
+        ChessPieceType[] layout = new ChessPieceType[8];
+        List<int> positions = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7 };
+
+        System.Random rnd = new System.Random();
+        
+        // 1. Place bishops on opposite colors:
+        // odd positions (assumed white squares: 1,3,5,7)
+        List<int> oddIndices = new List<int> { 1, 3, 5, 7 };
+        int bishopOddIndex = oddIndices[rnd.Next(oddIndices.Count)];
+        layout[bishopOddIndex] = ChessPieceType.Bishop;
+        positions.Remove(bishopOddIndex);
+        
+        // even positions (assumed dark squares: 0,2,4,6)
+        List<int> evenIndices = new List<int> { 0, 2, 4, 6 };
+        // Filter evenIndices to only available ones
+        List<int> availableEven = evenIndices.FindAll(pos => positions.Contains(pos));
+        int bishopEvenIndex = availableEven[rnd.Next(availableEven.Count)];
+        layout[bishopEvenIndex] = ChessPieceType.Bishop;
+        positions.Remove(bishopEvenIndex);
+        
+        // 2. Place queen in one of the 6 remaining positions:
+        int queenPos = positions[rnd.Next(positions.Count)];
+        layout[queenPos] = ChessPieceType.Queen;
+        positions.Remove(queenPos);
+        
+        // 3. Place two knights randomly in the remaining 5 positions:
+        for (int i = 0; i < 2; i++)
+        {
+            int knightPos = positions[rnd.Next(positions.Count)];
+            layout[knightPos] = ChessPieceType.Knight;
+            positions.Remove(knightPos);
+        }
+        
+        // 4. Remaining 3 positions: sort them then assign Rook - King - Rook:
+        positions.Sort();
+        if (positions.Count == 3)
+        {
+            layout[positions[0]] = ChessPieceType.Rook;
+            layout[positions[1]] = ChessPieceType.King;
+            layout[positions[2]] = ChessPieceType.Rook;
+        }
+        
+        return layout;
     }
 
     IEnumerator SpawnPieces(List<(ChessPieceType type, ChessPieceTeam team, int x, int y)> pieceToSpawn)
@@ -408,6 +481,12 @@ public class ChessManager : MonoBehaviour
 
     void EndTurn()
     {
+        otherTeamIsChecked = IsKingInDanger(chessPieces,
+            currentTurn == ChessPieceTeam.White
+                ? blackKing.GetCurrentCoordinate()
+                : whiteKing.GetCurrentCoordinate(),
+            currentTurn == ChessPieceTeam.White ? ChessPieceTeam.Black : ChessPieceTeam.White);
+        
         // Check for end game condition
         if (IsKingInCheckmate(chessPieces, currentTurn == ChessPieceTeam.White ? blackKing : whiteKing))
         {
@@ -1108,8 +1187,6 @@ public class ChessManager : MonoBehaviour
             lastMove.piece.Detach(true);
             lastMove.piece.PlacePieceInCurrentCoordinate();
             lastMove.attachedTo.Detach(false, false);
-            lastMove.attachedTo.PlacePieceInCurrentCoordinate();
-            lastMove.attachedTo.hasMoved = lastMove.attachedToHasMovedState;
         }
         if (lastMove.detachFrom)
         {
@@ -1123,8 +1200,6 @@ public class ChessManager : MonoBehaviour
         {
             lastMove.attachedPiece.UpdateCoordinate(lastMove.startPosition.x, lastMove.startPosition.y);
             lastMove.attachedPiece.PlacePieceInCurrentCoordinate();
-            lastMove.piece.initiateAttachPiece = lastMove.initiateAttachPiece;
-            lastMove.detachFrom.initiateAttachPiece = lastMove.initiateAttachPiece;
         }
         
         // Special moves

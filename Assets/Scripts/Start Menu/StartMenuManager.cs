@@ -322,6 +322,11 @@ public class StartMenuManager : MonoBehaviour
             if (timeDropdown.IsExpanded && !EventSystem.current.IsPointerOverGameObject())
                 timeDropdown.Hide();
     }
+    
+    void OnChess960ToggleValueChanged(bool value)
+    {
+        GameConfigurations.isChess960 = value;
+    }
 
     #endregion
 

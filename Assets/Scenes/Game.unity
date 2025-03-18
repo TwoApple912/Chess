@@ -2509,7 +2509,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1665f157343d3554fb5777bb5252c200, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wildMode: 1
+  wildMode: 0
   currentTurn: 0
   currentTeamIsChecked: 0
   whiteAgreeToDraw: 0

@@ -24,7 +24,8 @@ public class King : ChessPiece
                     availableMoves.Add(new Vector2Int(newX, newY));
                 if (board[newX, newY]?.chessPieceTeam == chessPieceTeam &&
                     board[newX, newY].IsAvailableToAttach(false) &&
-                    IsAvailableToAttach(true)) availableMoves.Add(new Vector2Int(newX, newY));
+                    IsAvailableToAttach(true) &&
+                    !ChessManager.Instance.OtherTeamIsChecked) availableMoves.Add(new Vector2Int(newX, newY));
             }
         }
         
