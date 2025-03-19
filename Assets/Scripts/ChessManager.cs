@@ -838,7 +838,16 @@ public class ChessManager : MonoBehaviour
 
     void Hover()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Vector3 mousePosition = Input.mousePosition;
+
+        if (mousePosition.x < 0 || mousePosition.x > Screen.width || mousePosition.y < 0 ||
+            mousePosition.y > Screen.height)
+        {
+            hoveredObject = null;
+            return;
+        }
+
+        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, selectableLayer))
@@ -1248,6 +1257,14 @@ public class ChessManager : MonoBehaviour
             lastMove.capturedPiece.PlacePieceInCurrentCoordinate();
             lastMove.capturedPiece.hasMoved = lastMove.capturedPieceHasMovedState;
         }
+        
+        // Update danger status
+        currentTeamIsChecked = IsKingInDanger(chessPieces,
+            currentTurn == ChessPieceTeam.White ? whiteKing.GetCurrentCoordinate() : blackKing.GetCurrentCoordinate(),
+            currentTurn);
+        otherTeamIsChecked = IsKingInDanger(chessPieces,
+            currentTurn == ChessPieceTeam.White ? blackKing.GetCurrentCoordinate() : whiteKing.GetCurrentCoordinate(),
+            currentTurn == ChessPieceTeam.White ? ChessPieceTeam.Black : ChessPieceTeam.White);
         
         // Update turn & change camera
         currentTurn = currentTurn == ChessPieceTeam.White ? ChessPieceTeam.Black : ChessPieceTeam.White;

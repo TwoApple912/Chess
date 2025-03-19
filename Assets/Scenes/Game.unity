@@ -387,6 +387,7 @@ GameObject:
   - component: {fileID: 99239151}
   - component: {fileID: 99239150}
   - component: {fileID: 99239152}
+  - component: {fileID: 99239153}
   m_Layer: 0
   m_Name: Black Camera
   m_TagString: Untagged
@@ -470,6 +471,21 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &99239153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 99239149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffda1ede18b246d45832fb9dcd7d79ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iPadFOV: 33
+  changeFOVAfterEndGame: 1
+  ipadFOVAfterEndGame: 38
 --- !u!1 &103707840
 GameObject:
   m_ObjectHideFlags: 0
@@ -1360,7 +1376,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.5674938, y: 0.000685005, z: -0.00047212385, w: 0.8233773}
+  m_LocalRotation: {x: 0.56749374, y: 0.0006850057, z: -0.00047212423, w: 0.8233773}
   m_LocalPosition: {x: 0, y: 15, z: -6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2252,6 +2268,7 @@ GameObject:
   - component: {fileID: 653933574}
   - component: {fileID: 653933573}
   - component: {fileID: 653933575}
+  - component: {fileID: 653933576}
   m_Layer: 0
   m_Name: White Camera
   m_TagString: Untagged
@@ -2306,7 +2323,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 653933572}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.56749374, y: 0.00068500644, z: -0.00047212603, w: 0.8233773}
+  m_LocalRotation: {x: 0.5674937, y: 0.00068500557, z: -0.00047212417, w: 0.8233774}
   m_LocalPosition: {x: 0, y: 15, z: -6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2335,6 +2352,21 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &653933576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 653933572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffda1ede18b246d45832fb9dcd7d79ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iPadFOV: 33
+  changeFOVAfterEndGame: 1
+  ipadFOVAfterEndGame: 38
 --- !u!1 &693301397
 GameObject:
   m_ObjectHideFlags: 3
@@ -2510,6 +2542,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wildMode: 0
+  isChess960Mode: 0
   currentTurn: 0
   currentTeamIsChecked: 0
   otherTeamIsChecked: 0
@@ -2687,6 +2720,7 @@ MonoBehaviour:
   endGameWindow: {fileID: 130759904}
   title: {fileID: 0}
   description: {fileID: 0}
+  quitGameButton: {fileID: 0}
 --- !u!114 &776909677
 MonoBehaviour:
   m_ObjectHideFlags: 0

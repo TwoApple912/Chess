@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,6 +9,8 @@ public class EndGameManager : MonoBehaviour
 
     public enum WinType { Checkmate, Resignation, TimeOut }
     public enum DrawType { Stalemate, ThreefoldRepetition, FiftyMoveRule, InsufficientMaterial, MutualAgreement }
+    
+    public event Action onEndGame;
     
     [Header("References")]
     [SerializeField] private GameObject endGameWindow;
@@ -62,6 +65,7 @@ public class EndGameManager : MonoBehaviour
     void EndGame()
     {
         ChessManager.Instance.gameEnded = true;
+        onEndGame?.Invoke();
         
         // Call the end game screen
         endGameWindow.SetActive(true);

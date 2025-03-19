@@ -1554,7 +1554,7 @@ Light:
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_ColorTemperature: 4250
+  m_ColorTemperature: 4000
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
@@ -1671,7 +1671,7 @@ MonoBehaviour:
       type: 3}
     m_PressedSprite: {fileID: 21300000, guid: 9ef233c6f684de84fab19cab44981cd1, type: 3}
     m_SelectedSprite: {fileID: 21300000, guid: 9ef233c6f684de84fab19cab44981cd1, type: 3}
-    m_DisabledSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 21300000, guid: bc5859cf5c3f9174bb3f1eeaab2f5262, type: 3}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
@@ -3902,7 +3902,7 @@ MonoBehaviour:
       type: 3}
     m_PressedSprite: {fileID: 21300000, guid: c438949607b3de1429326bb90ca2c9e5, type: 3}
     m_SelectedSprite: {fileID: 21300000, guid: c438949607b3de1429326bb90ca2c9e5, type: 3}
-    m_DisabledSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 21300000, guid: 9138a86bf26ef7c47a3f304e7a754b4b, type: 3}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
@@ -6338,6 +6338,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1733126683}
   - component: {fileID: 1733126682}
+  - component: {fileID: 1733126684}
   m_Layer: 0
   m_Name: New Game Camera
   m_TagString: Untagged
@@ -6400,6 +6401,21 @@ Transform:
   - {fileID: 1760212297}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 70.8, y: 0, z: 0}
+--- !u!114 &1733126684
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1733126681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffda1ede18b246d45832fb9dcd7d79ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iPadFOV: 12
+  changeFOVAfterEndGame: 0
+  ipadFOVAfterEndGame: 38
 --- !u!1 &1760212296
 GameObject:
   m_ObjectHideFlags: 3
@@ -8015,11 +8031,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Rules Canvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 6753365946460271860, guid: 2b24814d50d4d1c428980f35373a5fff,
-        type: 3}
-      propertyPath: m_PresetInfoIsWorld
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
