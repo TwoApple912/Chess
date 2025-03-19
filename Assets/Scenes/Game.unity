@@ -2512,6 +2512,7 @@ MonoBehaviour:
   wildMode: 0
   currentTurn: 0
   currentTeamIsChecked: 0
+  otherTeamIsChecked: 0
   whiteAgreeToDraw: 0
   blackAgreeToDraw: 0
   gameEnded: 0
@@ -3239,7 +3240,7 @@ MonoBehaviour:
       type: 3}
     m_PressedSprite: {fileID: 21300000, guid: 515a468fde8cf254bbf0e1c8aca27a4c, type: 3}
     m_SelectedSprite: {fileID: 21300000, guid: 515a468fde8cf254bbf0e1c8aca27a4c, type: 3}
-    m_DisabledSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 21300000, guid: 0f5e14a74196cdb4aae0664ad44cbe86, type: 3}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public class ChessManager : MonoBehaviour
@@ -10,8 +11,11 @@ public class ChessManager : MonoBehaviour
     public static ChessManager Instance;
     public event Action OnTurnEnd;
     
+    [Header("Game Configurations")]
     [SerializeField] private bool wildMode;
         public bool WildMode => wildMode;
+    [SerializeField] private bool isChess960Mode;
+        public bool IsChess960Mode => isChess960Mode;
 
     [Header("Game Tracker")]
     public ChessPiece[,] chessPieces;
@@ -126,7 +130,7 @@ public class ChessManager : MonoBehaviour
         ApplyConfigurations();
         
         GenerateTiles();
-        if (!GameConfigurations.isChess960) StartCoroutine(SpawnPiecesInTheDefaultLayout());
+        if (!isChess960Mode) StartCoroutine(SpawnPiecesInTheDefaultLayout());
         else StartCoroutine(SpawnPiecesUsingTheChess960Rules());
     }
 
@@ -168,8 +172,10 @@ public class ChessManager : MonoBehaviour
     void ApplyConfigurations()
     {
         wildMode = GameConfigurations.isWildMode;
+        isChess960Mode = GameConfigurations.isChess960;
         
         Debug.Log($"Wild mode: {GameConfigurations.isWildMode}");
+        Debug.Log($"Chess960: {GameConfigurations.isChess960}");
         Debug.Log($"{GameConfigurations.PlayerTimerMinute}|{GameConfigurations.PlayerIncrementSecond}");
     }
     
@@ -846,53 +852,8 @@ public class ChessManager : MonoBehaviour
     {
         if (isSpawningPieces || isPromoting) return;
         
-        /*if (Input.GetMouseButtonDown(0)) pressTime = Time.time;
-
-        if (Input.GetMouseButton(0))
-        {
-            if (Time.time - pressTime > pressThreshold && hoveredObject && !isDragging)
-            {
-                ChessPiece piece = hoveredObject.GetComponent<ChessPiece>();
-                if (piece && piece.chessPieceTeam == currentTurn)
-                {
-                    SelectPiece(piece);
-                    isDragging = true;
-                }
-            }
-        }*/
-        
         if (Input.GetMouseButtonUp(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended))
         {
-            /*if (isDragging) // Drag logic (same as click logic but slightly different)
-            {
-                if (hoveredObject.CompareTag("Tile") && possibleMoves.Contains(LookUpPositionIndex(hoveredObject)))
-                {
-                    PerformMove(selectedPiece, LookUpPositionIndex(hoveredObject).x,
-                        LookUpPositionIndex(hoveredObject).y);
-                }
-                else if (hoveredObject.GetComponent<ChessPiece>())
-                {
-                    ChessPiece pressedPiece = hoveredObject.GetComponent<ChessPiece>();
-
-                    if (pressedPiece.chessPieceTeam == selectedPiece.chessPieceTeam)
-                    {
-                        ReturnDraggedPieceToOriginalPosition(selectedPiece);
-                        DeselectPiece();
-                    }
-                    else
-                    {
-                        PerformMove(selectedPiece, LookUpPositionIndex(pressedPiece.gameObject).x,
-                            LookUpPositionIndex(pressedPiece.gameObject).y);
-                    }
-                }
-                else
-                {
-                    ReturnDraggedPieceToOriginalPosition(selectedPiece);
-                    DeselectPiece();
-                }
-
-                isDragging = false;
-            }*/
             if (hoveredObject) // Click logic (same as drag logic but slightly different)
             {
                 if (!selectedPiece) // If haven't select any piece

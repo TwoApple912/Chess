@@ -4959,6 +4959,8 @@ MonoBehaviour:
   gameSceneCamera: {fileID: 0}
   startMenuCanvasGroup: {fileID: 0}
   newGameCanvasGroup: {fileID: 0}
+  quitGameButton: {fileID: 0}
+  chess960Toggle: {fileID: 0}
   chessPieces: []
 --- !u!4 &1283479769
 Transform:
@@ -5608,7 +5610,7 @@ MonoBehaviour:
       type: 3}
     m_PressedSprite: {fileID: 21300000, guid: d0c0538573b362946b4c09ea35bfad56, type: 3}
     m_SelectedSprite: {fileID: 21300000, guid: d0c0538573b362946b4c09ea35bfad56, type: 3}
-    m_DisabledSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 21300000, guid: 1d8165736037c7043afdf0b2117079ff, type: 3}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
@@ -7119,7 +7121,19 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1283479768}
+        m_TargetAssemblyTypeName: StartMenuManager, Assembly-CSharp
+        m_MethodName: OnChess960ToggleValueChanged
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 0
 --- !u!1 &1925015745
 GameObject:

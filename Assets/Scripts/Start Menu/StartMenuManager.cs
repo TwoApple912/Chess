@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
@@ -6,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class StartMenuManager : MonoBehaviour
@@ -42,6 +42,9 @@ public class StartMenuManager : MonoBehaviour
     [Space]
     [SerializeField] private CanvasGroup startMenuCanvasGroup;
     [SerializeField] private CanvasGroup newGameCanvasGroup;
+    [SerializeField] private Button quitGameButton;
+    [SerializeField] private Toggle chess960Toggle;
+    [Space]
     [SerializeField] private List<GameObject> chessPieces;
     
     private void Awake()
@@ -70,6 +73,9 @@ public class StartMenuManager : MonoBehaviour
         
         if (!startMenuCanvasGroup) startMenuCanvasGroup = GameObject.Find("Start Menu Canvas").GetComponent<CanvasGroup>();
         if (!newGameCanvasGroup) newGameCanvasGroup = GameObject.Find("New Game Canvas").GetComponent<CanvasGroup>();
+        if (!quitGameButton) quitGameButton = GameObject.Find("Start Menu Canvas/Quit Button").GetComponent<Button>();
+        if (!chess960Toggle) chess960Toggle = GameObject.Find("New Game Canvas/Chess960 Toggle").GetComponent<Toggle>();
+        
         chessPieces.Add(pawn.gameObject);
     }
 
@@ -80,6 +86,8 @@ public class StartMenuManager : MonoBehaviour
 
     void Start()
     {
+        if (Application.platform == RuntimePlatform.WebGLPlayer) quitGameButton.interactable = false;
+        
         RulesCanvas.Instance.onRulesClosed += NGBack;
         
         customTimerInputField.gameObject.SetActive(false);
@@ -323,9 +331,9 @@ public class StartMenuManager : MonoBehaviour
                 timeDropdown.Hide();
     }
     
-    void OnChess960ToggleValueChanged(bool value)
+    public void OnChess960ToggleValueChanged()
     {
-        GameConfigurations.isChess960 = value;
+        GameConfigurations.isChess960 = chess960Toggle.isOn;
     }
 
     #endregion

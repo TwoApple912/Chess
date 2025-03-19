@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EndGameManager : MonoBehaviour
 {
@@ -8,10 +9,11 @@ public class EndGameManager : MonoBehaviour
     public enum WinType { Checkmate, Resignation, TimeOut }
     public enum DrawType { Stalemate, ThreefoldRepetition, FiftyMoveRule, InsufficientMaterial, MutualAgreement }
     
-    [Header("Window Elements")]
+    [Header("References")]
     [SerializeField] private GameObject endGameWindow;
     [SerializeField] private TextMeshProUGUI title;
     [SerializeField] private TextMeshProUGUI description;
+    [SerializeField] private Button quitGameButton;
     
     private void Awake()
     {
@@ -19,10 +21,12 @@ public class EndGameManager : MonoBehaviour
         else Instance = this;
         
         if (!endGameWindow) endGameWindow = GameObject.Find("Canvas/End Game Window");
+        if (!quitGameButton) quitGameButton = GameObject.Find("Canvas/End Game Window/Quit Game Button").GetComponent<Button>();
     }
 
     private void Start()
     {
+        if (Application.platform == RuntimePlatform.WebGLPlayer) quitGameButton.interactable = false;
         endGameWindow.SetActive(false);
     }
 
