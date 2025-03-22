@@ -4961,6 +4961,7 @@ MonoBehaviour:
   newGameCanvasGroup: {fileID: 0}
   quitGameButton: {fileID: 0}
   chess960Toggle: {fileID: 0}
+  pawn: {fileID: 1347082856}
   chessPieces: []
 --- !u!4 &1283479769
 Transform:
@@ -5166,6 +5167,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1316317099}
   m_CullTransparentMesh: 1
+--- !u!114 &1347082856 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3110600561964645877, guid: 2cc21ef6a5e95014983869733aa91527,
+    type: 3}
+  m_PrefabInstance: {fileID: 1829734334}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0472db10a853e5848a4dea0d12060de6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1410541357
 GameObject:
   m_ObjectHideFlags: 0
@@ -7927,6 +7940,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1364313656442049867, guid: 2b24814d50d4d1c428980f35373a5fff,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 14fb1cd89b27fbd4cb1f78c4eb8b37de,
+        type: 3}
     - target: {fileID: 1504850721015624540, guid: 2b24814d50d4d1c428980f35373a5fff,
         type: 3}
       propertyPath: m_Pivot.x
@@ -8032,6 +8051,24 @@ PrefabInstance:
       propertyPath: m_Name
       value: Rules Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 5829781656612118235, guid: 2b24814d50d4d1c428980f35373a5fff,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 49f841ea29deba0469c305e27ab09ff5,
+        type: 3}
+    - target: {fileID: 6591932101993066275, guid: 2b24814d50d4d1c428980f35373a5fff,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 57b8e28e008d6e444ad3c48c46c023fd,
+        type: 3}
+    - target: {fileID: 8117831422297582632, guid: 2b24814d50d4d1c428980f35373a5fff,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 54670874f7a740f47bd9429ca05a1e30,
+        type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

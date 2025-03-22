@@ -33,8 +33,6 @@ public class StartMenuManager : MonoBehaviour
     [SerializeField] private float adjunctSize = 0.85f;
     [SerializeField] private GameObject[] chessPiecesPrefab;
     
-    private ChessPiece pawn;
-    
     [Header("References")]
     [SerializeField] private CinemachineVirtualCamera startMenuCamera;
     [SerializeField] private CinemachineVirtualCamera newGameCamera;
@@ -44,6 +42,8 @@ public class StartMenuManager : MonoBehaviour
     [SerializeField] private CanvasGroup newGameCanvasGroup;
     [SerializeField] private Button quitGameButton;
     [SerializeField] private Toggle chess960Toggle;
+    [Space]
+    [SerializeField] private ChessPiece pawn;
     [Space]
     [SerializeField] private List<GameObject> chessPieces;
     
@@ -65,7 +65,7 @@ public class StartMenuManager : MonoBehaviour
             Resources.Load<GameObject>("Prefabs/Chess Pieces/Queen")
         };
         
-        if (!pawn) pawn = GameObject.Find("Pawn").GetComponent<ChessPiece>();
+        if (!pawn) pawn = GameObject.Find("Pawn").GetComponent<ChessPiece>(); Debug.Log(pawn);
         
         if (!startMenuCamera) startMenuCamera = GameObject.Find("Start Menu Camera").GetComponent<CinemachineVirtualCamera>();
         if (!newGameCamera) newGameCamera = GameObject.Find("New Game Camera").GetComponent<CinemachineVirtualCamera>();
