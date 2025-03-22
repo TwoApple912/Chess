@@ -15,7 +15,10 @@ public class StartMenuManager : MonoBehaviour
     [Space]
     [SerializeField] private string gameSceneName = "Game";
     
-    [Header("New Game Parameters")]
+    [Header("Start Menu Variables")]
+    [SerializeField] private string creditURL = "https://2apol.itch.io";
+    
+    [Header("New Game Variables")]
     [SerializeField] private TMP_Dropdown timeDropdown;
     [SerializeField] private TMP_Dropdown incrementDropdown;
     [Space]
@@ -148,6 +151,11 @@ public class StartMenuManager : MonoBehaviour
     public void QuitGame()
     {
         MenuManager.QuitGame();
+    }
+
+    public void OpenCredit()
+    {
+        Application.OpenURL(creditURL);
     }
     
     #endregion
