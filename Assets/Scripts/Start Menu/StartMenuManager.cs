@@ -42,6 +42,7 @@ public class StartMenuManager : MonoBehaviour
     [SerializeField] private CinemachineVirtualCamera gameSceneCamera;
     [Space]
     [SerializeField] private CanvasGroup startMenuCanvasGroup;
+    [SerializeField] private TMP_Text gameVersionText;
     [SerializeField] private CanvasGroup newGameCanvasGroup;
     [SerializeField] private Button quitGameButton;
     [SerializeField] private Toggle chess960Toggle;
@@ -75,6 +76,7 @@ public class StartMenuManager : MonoBehaviour
         if (!gameSceneCamera) gameSceneCamera = GameObject.Find("Game Scene Camera").GetComponent<CinemachineVirtualCamera>();
         
         if (!startMenuCanvasGroup) startMenuCanvasGroup = GameObject.Find("Start Menu Canvas").GetComponent<CanvasGroup>();
+        if (!gameVersionText) gameVersionText = GameObject.Find("Start Menu Canvas/Game Version Text").GetComponent<TMP_Text>();
         if (!newGameCanvasGroup) newGameCanvasGroup = GameObject.Find("New Game Canvas").GetComponent<CanvasGroup>();
         if (!quitGameButton) quitGameButton = GameObject.Find("Start Menu Canvas/Quit Button").GetComponent<Button>();
         if (!chess960Toggle) chess960Toggle = GameObject.Find("New Game Canvas/Chess960 Toggle").GetComponent<Toggle>();
@@ -95,7 +97,8 @@ public class StartMenuManager : MonoBehaviour
         
         customTimerInputField.gameObject.SetActive(false);
         customIncrementInputField.gameObject.SetActive(false);
-        
+
+        SetGameVersion();
         SetGameConfigurations();
         
         StartCoroutine(PieceSequence());
@@ -345,6 +348,11 @@ public class StartMenuManager : MonoBehaviour
     }
 
     #endregion
+    
+    void SetGameVersion()
+    {
+        gameVersionText.text = "v" + Application.version;
+    }
 
     void SetGameConfigurations()
     {
