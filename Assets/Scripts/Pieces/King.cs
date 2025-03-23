@@ -32,11 +32,11 @@ public class King : ChessPiece
         // Castling
         if (!hasMoved)
         {
-            if (IsValidCastling(board, boardSize, 1))
+            if (IsValidCastling(board, boardSize, 1) && !ChessManager.Instance.WildMode)
             {
                 availableMoves.Add(new Vector2Int(currentX + 2, currentY));
             }
-            if (IsValidCastling(board, boardSize, -1))
+            if (IsValidCastling(board, boardSize, -1) && !ChessManager.Instance.WildMode)
             {
                 availableMoves.Add(new Vector2Int(currentX - 2, currentY));
             }
@@ -66,8 +66,28 @@ public class King : ChessPiece
     
     public override bool IsAvailableToAttach(bool initiatingPiece)
     {
-        if (ChessManager.Instance.CurrentTeamIsChecked && !ChessManager.Instance.WildMode) return false;
-        
-        return base.IsAvailableToAttach(initiatingPiece);
+        if (!isAttached)
+        {
+            if (ChessManager.Instance.CurrentTeamIsChecked)
+            {
+                if (ChessManager.Instance.WildMode) return true;
+                return false;
+            }
+
+            return true;
+        }
+
+        if (ChessManager.Instance.isSelectedForDetaching && initiatingPiece)
+        {
+            if (ChessManager.Instance.CurrentTeamIsChecked)
+            {
+                if (ChessManager.Instance.WildMode) return true;
+                return false;
+            }
+            
+            return true;
+        }
+
+        return false;
     }
 }

@@ -390,6 +390,8 @@ public class StartMenuManager : MonoBehaviour
                 incrementDropdown.value = 3;
                 break;
         }
+        
+        chess960Toggle.isOn = GameConfigurations.isChess960;
     }
     
     IEnumerator LoadGameScene(bool isWildMode = false)

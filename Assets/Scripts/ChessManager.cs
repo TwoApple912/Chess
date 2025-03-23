@@ -551,7 +551,17 @@ public class ChessManager : MonoBehaviour
         {
             whiteTimerAtTheStartOfTheTurn = GameTimerManager.Instance.whiteTimer;
             blackTimerAtTheStartOfTheTurn = GameTimerManager.Instance.blackTimer;
-        } 
+        }
+        
+        currentTeamIsChecked = IsKingInDanger(chessPieces,
+            currentTurn == ChessPieceTeam.White
+                ? whiteKing.GetCurrentCoordinate()
+                : blackKing.GetCurrentCoordinate(), currentTurn);
+        otherTeamIsChecked = IsKingInDanger(chessPieces,
+            currentTurn == ChessPieceTeam.White
+                ? blackKing.GetCurrentCoordinate()
+                : whiteKing.GetCurrentCoordinate(),
+            currentTurn == ChessPieceTeam.White ? ChessPieceTeam.Black : ChessPieceTeam.White);
     }
 
     #endregion
