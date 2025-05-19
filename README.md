@@ -1,2 +1,2 @@
 # Chess
-Chess*
+with attached mechanics
